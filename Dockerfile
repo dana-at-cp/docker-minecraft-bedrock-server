@@ -1,9 +1,9 @@
-FROM debian
+FROM ubuntu
 
 # ARCH is only set to avoid repetition in Dockerfile since the binary download only supports amd64
 ARG ARCH=amd64
 
-ARG APT_UPDATE=20210112
+#ARG APT_UPDATE=20210112
 
 RUN apt-get update && \
   DEBIAN_FRONTEND=noninteractive apt-get install -y \
