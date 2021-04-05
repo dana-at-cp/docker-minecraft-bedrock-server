@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: minecraft-bedrock
+  name: djt-mc-bedrock
   labels:
     role: service-config
     app: bds
@@ -63,11 +63,11 @@ spec:
     spec:
       containers:
         - name: main
-          image: itzg/minecraft-bedrock-server
+          image: djt/mc-bedrock
           imagePullPolicy: Always
           envFrom:
             - configMapRef:
-                name: minecraft-bedrock
+                name: djt-mc-bedrock
           volumeMounts:
             - mountPath: /data
               name: data
