@@ -13,12 +13,12 @@ data:
   GAMEMODE: "survival" # Options: survival, creative, adventure
   DIFFICULTY: "easy" # Options: peaceful, easy, normal, hard
   #DEFAULT_PLAYER_PERMISSION_LEVEL: "member" # Options: visitor, member, operator
-  #LEVEL_NAME: "my_minecraft_world"
-  #LEVEL_SEED: "33480944"
-  #SERVER_NAME: "my_minecraft_server"
-  #SERVER_PORT: "19132"
+  LEVEL_NAME: "djt_mc_bedrock"
+  LEVEL_SEED: "33480944"
+  SERVER_NAME: "djt_mc_bedrock"
+  SERVER_PORT: "19132"
   #LEVEL_TYPE: "DEFAULT" # Options: FLAT, LEGACY, DEFAULT
-  #ALLOW_CHEATS: "false" # Options: true, false
+  ALLOW_CHEATS: "true" # Options: true, false
   #MAX_PLAYERS: "10"
   #PLAYER_IDLE_TIMEOUT: "30"
   #TEXTUREPACK_REQUIRED: "false" # Options: true, false
@@ -74,16 +74,16 @@ spec:
           ports:
             - containerPort: 19132
               protocol: UDP
-          #readinessProbe: &probe
-          #  exec:
-          #    command:
-          #      - mc-monitor
-          #      - status-bedrock
-          #      - --host
-          #      # force health check against IPv4 port
-          #      - 127.0.0.1
-          #  initialDelaySeconds: 300
-          #livenessProbe: *probe
+          readinessProbe: &probe
+            exec:
+              command:
+                - mc-monitor
+                - status-bedrock
+                - --host
+                # force health check against IPv4 port
+                - 127.0.0.1
+            initialDelaySeconds: 600
+          livenessProbe: *probe
   volumeClaimTemplates:
     - metadata:
         name: data
