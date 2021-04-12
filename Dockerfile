@@ -10,6 +10,7 @@ RUN apt-get update && \
     curl \
     unzip \
     jq \
+    net-tools \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
