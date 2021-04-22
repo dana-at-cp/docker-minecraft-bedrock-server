@@ -82,7 +82,7 @@ spec:
                 - --host
                 # force health check against IPv4 port
                 - 127.0.0.1
-            initialDelaySeconds: 300
+            initialDelaySeconds: 600
           livenessProbe: *probe
   volumeClaimTemplates:
     - metadata:
