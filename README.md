@@ -13,6 +13,12 @@ exposing the default UDP port:
 docker run -d -it -e EULA=TRUE -p 19132:19132/udp itzg/minecraft-bedrock-server
 ```
 
+> **NOTE**: if you plan on running a server for a longer amount of time it is highly recommended using a management layer such as [Docker Compose](#deploying-with-docker-compose) or [Kubernetes](#deploying-with-kubernetes) to allow for incremental reconfiguration and image upgrades.
+
+## Upgrading to the latest Bedrock server version
+
+With the `VERSION` variable set to `LATEST`, which is the default, then the Bedrock server can be upgraded by restarting the container. At every startup, the container checks for the latest version and upgrades, if needed.
+
 ## Looking for a Java Edition Server
 
 For Minecraft Java Edition you'll need to use this image instead:
@@ -38,6 +44,7 @@ For Minecraft Java Edition you'll need to use this image instead:
   bedrock server process
 - `GID` (default derived from `/data` owner) : can be set to a specific group ID to run the
   bedrock server process
+- `PACKAGE_BACKUP_KEEP` (`2`) : how many package backups to keep
 
 ### Server Properties
 
@@ -142,6 +149,8 @@ There are two ways to handle a whitelist. The first is to set the `WHITE_LIST` e
 -e WHITE_LIST_USERS="player1,player2,player3"
 ```
 
+> Starting with 1.16.230.50, `ALLOW_LIST`, `ALLOW_LIST_USERS`, and the file `allowlist.json` will be used instead.
+
 ## More information
 
 For more information about managing Bedrock Dedicated Servers in general, [check out this Reddit post](https://old.reddit.com/user/ProfessorValko/comments/9f438p/bedrock_dedicated_server_tutorial/).
@@ -216,3 +225,8 @@ You can follow the logs of the deployment using:
 ```bash
 kubectl logs -f deployment/bds
 ```
+
+## Community Solutions
+
+- [kaiede/minecraft-bedrock-backup image](https://hub.docker.com/r/kaiede/minecraft-bedrock-backup) by @Kaiede
+- [ghcr.io/edward3h/mc-webhook](https://github.com/edward3h/minecraft-webhook) by @edward3h

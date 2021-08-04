@@ -8,7 +8,7 @@ if [[ ${DEBUG^^} = TRUE ]]; then
   echo "DEBUG: running as $(id -a) with $(ls -ld /data)"
 fi
 
-downloadPage=https://www.minecraft.net/en-us/download/server/bedrock/
+downloadPage=https://www.minecraft.net/en-us/download/server/bedrock
 
 if [[ ${EULA^^} != TRUE ]]; then
   echo
@@ -40,14 +40,20 @@ case ${VERSION^^} in
     VERSION=1.16.20.03
     ;;
   LATEST)
-    for a in data-bi-prtid data-platform; do
+    echo "Looking up latest version..."
+    for a in data-platform ; do
       for i in {1..3}; do
-        DOWNLOAD_URL=$(restify --attribute=${a}=serverBedrockLinux ${downloadPage} 2> restify.err | jq -r '.[0].href' || echo '')
+        DOWNLOAD_URL=$(restify --user-agent=itzg/minecraft-bedrock-server --headers "accept-language:*" --attribute=${a}=serverBedrockLinux ${downloadPage} 2> restify.err | jq -r '.[0].href' || echo '')
         if [[ ${DOWNLOAD_URL} ]]; then
           break 2
         fi
+        sleep 1
       done
     done
+    if [[ -z ${DOWNLOAD_URL} ]]; then
+      DOWNLOAD_URL=$(curl -s https://mc-bds-helper.vercel.app/api/latest)
+    fi
+
     if [[ ${DOWNLOAD_URL} =~ http.*/.*-(.*)\.zip ]]; then
       VERSION=${BASH_REMATCH[1]}
     elif [[ $(ls -rv bedrock_server-* 2> /dev/null|head -1) =~ bedrock_server-(.*) ]]; then
@@ -55,12 +61,16 @@ case ${VERSION^^} in
       echo "WARN Minecraft download page failed, so using existing download of $VERSION"
       cat restify.err
     else
-      echo "Failed to extract download URL '${DOWNLOAD_URL}' from ${downloadPage}"
-      cat restify.err
-      rm restify.err
+      if [[ -f restify.err ]]; then
+        echo "Failed to extract download URL '${DOWNLOAD_URL}' from ${downloadPage}"
+        cat restify.err
+        rm restify.err
+      else
+        echo "Failed to lookup download URL: ${DOWNLOAD_URL}"
+      fi
       exit 2
     fi
-    rm restify.err
+    rm -f restify.err
     ;;
   *)
     # use the given version exactly
@@ -83,9 +93,11 @@ if [ ! -f "bedrock_server-${VERSION}" ]; then
   fi
 
   # remove only binaries and some docs, to allow for an upgrade of those
-  rm -rf bedrock_server *.so release-notes.txt bedrock_server_how_to.html valid_known_packs.json premium_cache 2> /dev/null
+  rm -rf bedrock_server bedrock_server-* *.so release-notes.txt bedrock_server_how_to.html valid_known_packs.json premium_cache 2> /dev/null
 
   bkupDir=backup-pre-${VERSION}
+  # fixup any previous interrupted upgrades
+  rm -rf "${bkupDir}"
   for d in behavior_packs definitions minecraftpe resource_packs structures treatments world_templates
   do
     if [ -d $d ]; then
@@ -95,8 +107,18 @@ if [ ! -f "bedrock_server-${VERSION}" ]; then
     fi
   done
 
-  # ... overwrite all game files, except config files
-  unzip -q ${TMP_ZIP} -x $(ls server.properties whitelist.json permissions.json 2> /dev/null)
+  # remove old package backups, but keep PACKAGE_BACKUP_KEEP
+  if (( ${PACKAGE_BACKUP_KEEP:=2} >= 0 )); then
+    shopt -s nullglob
+    for d in $( ls -td1 backup-pre-* | tail +$(( PACKAGE_BACKUP_KEEP + 1 )) ); do
+      echo "Pruning $d"
+      rm -rf $d
+    done
+  fi
+
+  # Do not overwrite existing files, which means the cleanup above needs to account for things
+  # that MUST be replaced on upgrade
+  unzip -q -n ${TMP_ZIP}
   rm ${TMP_ZIP}
 
   chmod +x bedrock_server
@@ -112,12 +134,19 @@ if [ -n "$OPS" ] || [ -n "$MEMBERS" ] || [ -n "$VISITORS" ]; then
   ]| flatten' > permissions.json
 fi
 
-if [ -n "$WHITE_LIST_USERS" ]; then
-  echo "Setting whitelist"
-  rm -rf whitelist.json
-  jq -n --arg users "$WHITE_LIST_USERS" '$users | split(",") | map({"name": .})' > whitelist.json
-  # flag whitelist to true so the server properties process correctly
+allowListUsers=${ALLOW_LIST_USERS:-${WHITE_LIST_USERS}}
+
+if [ -n "$allowListUsers" ]; then
+  echo "Setting allow list"
+  for f in whitelist.json allowlist.json; do
+    if [ -f $f ]; then
+      rm -rf $f
+      jq -n --arg users "$allowListUsers" '$users | split(",") | map({"name": .})' > $f
+    fi
+  done
+  # activate server property to enable list usage
   export WHITE_LIST=true
+  export ALLOW_LIST=true
 fi
 
 set-property --file server.properties --bulk /etc/bds-property-definitions.json
