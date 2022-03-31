@@ -106,7 +106,8 @@ spec:
   ports:
     - port: 19132
       protocol: UDP
-  ipFamily: IPv4
+  ipFamilies:
+    - IPv4
   # Use LoadBalancer if running on a provider that supports that
 #  type: LoadBalancer
   # or use NodePort on a non-managed system;
