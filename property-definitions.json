@@ -67,6 +67,9 @@
   "max-threads": {
     "env": "MAX_THREADS"
   },
+  "compression-threshold": {
+    "env": "COMPRESSION_THRESHOLD"
+  },
   "level-name": {
     "env": "LEVEL_NAME"
   },
@@ -88,6 +91,10 @@
       "true": "server-auth",
       "false": "client-auth"
     }
+  },
+  "server-authoritative-block-breaking": {
+    "env": "SERVER_AUTHORITATIVE_BLOCK_BREAKING",
+    "allowed": ["true", "false"]
   },
   "player-movement-score-threshold": {
     "env": "PLAYER_MOVEMENT_SCORE_THRESHOLD"
