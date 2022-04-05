@@ -12,15 +12,15 @@ data:
   EULA: "TRUE" # Must accept EULA to use this minecraft server
   GAMEMODE: "creative" # Options: survival, creative, adventure
   #DIFFICULTY: "easy" # Options: peaceful, easy, normal, hard
-  #DEFAULT_PLAYER_PERMISSION_LEVEL: "member" # Options: visitor, member, operator
-  #LEVEL_NAME: "my_minecraft_world"
+  DEFAULT_PLAYER_PERMISSION_LEVEL: "operator" # Options: visitor, member, operator
+  LEVEL_NAME: "owens_world"
   #LEVEL_SEED: "33480944"
-  #SERVER_NAME: "my_minecraft_server"
+  SERVER_NAME: "home_server"
   #SERVER_PORT: "19132"
   #LEVEL_TYPE: "DEFAULT" # Options: FLAT, LEGACY, DEFAULT
   #ALLOW_CHEATS: "false" # Options: true, false
-  #MAX_PLAYERS: "10"
-  #PLAYER_IDLE_TIMEOUT: "30"
+  MAX_PLAYERS: "5"
+  PLAYER_IDLE_TIMEOUT: "60"
   #TEXTUREPACK_REQUIRED: "false" # Options: true, false
   #
   ## Changing these will have a security impact
